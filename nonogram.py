@@ -72,3 +72,25 @@ class Nonogram:
         if self.debug:
             print("Marked ({0}, {1}) as empty".format(x, y))
         self.board[x][y] = self.EMPTY
+
+    def get_row(self, index):
+        """Gets the i-th row from the board"""
+        return self.board[index]  # Simple, since we store in rows
+
+    def get_column(self, index):
+        """Gets the i-th column from the board"""
+        # Unlike row, need to create a new list and get values
+        ret = []
+        for row in self.board:
+            ret.append(row[index])
+        return ret
+
+    def save_row(self, index, row):
+        """Saves a row to the board"""
+        self.board[index] = row  # Again, simple
+
+    def save_col(self, index, col):
+        """Saves a row to the board"""
+        # Unlike row, need to store into appropriate locations
+        for n, row in enumerate(self.board):
+            row[index] = col[n]
