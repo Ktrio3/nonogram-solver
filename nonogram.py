@@ -37,7 +37,10 @@ class Nonogram:
 
         s.debug = debug
 
-        # Number of columns is the length of a row and vice versa
+        s.num_rows = len(rows)
+        s.num_cols = len(columns)
+
+        # Length of columns is the length of a row and vice versa
         s.len_row = len(columns)
         s.len_col = len(rows)
 
@@ -53,7 +56,7 @@ class Nonogram:
                 raise OutOfBoundsHints("column", n, sum(col), s.len_col)
 
         # Init board
-        s.board = [[s.UNKNOWN] * s.len_col for _ in range(s.len_row)]
+        s.board = [[s.UNKNOWN] * s.num_cols for _ in range(s.num_rows)]
 
     def fill(self, x, y):
         """Marks coordinate (x,y) as filled"""
