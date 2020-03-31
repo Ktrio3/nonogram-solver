@@ -29,6 +29,47 @@ class Nonogram:
         s += "+---" * self.len_row + "+"
         return s
 
+    def verify(self):
+        for i in range(self.num_rows):
+            row = self.get_row(i)
+            hints = self.rows[i]
+
+            if not self.verify_row(row, hints):
+                return False
+
+        for i in range(self.num_cols):
+            row = self.get_column(i)
+            hints = self.columns[i]
+
+            if not self.verify_row(row, hints):
+                return False
+        return True
+
+    def verify_row(self, row, hints):
+        current_hint = 0
+        i = 0
+        while i < len(row):
+            if row[i] == self.EMPTY:
+                i += 1
+            elif row[i] == self.FILLED:
+                if current_hint == len(hints):
+                    return False  # Should have already been done
+                j = 0
+                while i + j < len(row) and row[i + j] == self.FILLED:
+                    j += 1
+                if i + j < len(row) and row[i + j] == self.UNKNOWN:
+                    return False
+                if j == hints[current_hint]:
+                    current_hint += 1
+                else:
+                    return False
+                i += j
+            else:
+                return False
+        if current_hint != len(hints):
+            return False
+        return True
+
     def __init__(s, rows: List[List[int]],
                  columns: List[List[int]], debug: bool = False):
         """Initialize a gameboard from a list of row hints and col hints"""
