@@ -73,6 +73,24 @@ class Solver:
                         print("Completed the largest hint in row {0}".format(i))
                         print(self.nono)
                     continue
+                trimmed, update = self.first_gaps(trimmed, hints)
+                if update:
+                    updated = True
+                    row = self.repair(row, trimmed, start)
+                    self.nono.save_row(i, row)
+                    if self.show_steps:
+                        print("Removed small gaps at the start of row {0}".format(i))
+                        print(self.nono)
+                    continue
+                trimmed, update = self.last_gaps(trimmed, hints)
+                if update:
+                    updated = True
+                    row = self.repair(row, trimmed, start)
+                    self.nono.save_row(i, row)
+                    if self.show_steps:
+                        print("Removed small gaps at the end of row {0}".format(i))
+                        print(self.nono)
+                    continue
                 trimmed, update = self.remove_smalls(trimmed, hints)
                 if update:
                     updated = True
@@ -112,6 +130,24 @@ class Solver:
                         print("Filled edges of column {0}".format(i))
                         print(self.nono)
                     continue
+                trimmed, update = self.first_gaps(trimmed, hints)
+                if update:
+                    updated = True
+                    col = self.repair(col, trimmed, start)
+                    self.nono.save_col(i, col)
+                    if self.show_steps:
+                        print("Removed small gaps at the start of column {0}".format(i))
+                        print(self.nono)
+                    continue
+                trimmed, update = self.last_gaps(trimmed, hints)
+                if update:
+                    updated = True
+                    col = self.repair(col, trimmed, start)
+                    self.nono.save_col(i, col)
+                    if self.show_steps:
+                        print("Removed small gaps at the end of column {0}".format(i))
+                        print(self.nono)
+                    continue
                 trimmed, update = self.complete_max(trimmed, hints)
                 if update:
                     updated = True
@@ -141,6 +177,36 @@ class Solver:
             # TODO: Raise exception about incomplete
             print("Puzzle unsolved")
 
+    def first_gaps(self, row, hints):
+        i = 0
+        updated = False
+        while i < len(row):
+            if row[i] == self.UNKNOWN:
+                size = 0
+                while i + size < len(row) and row[i + size] == self.UNKNOWN:
+                    size += 1
+                if i + size < len(row) and size < hints[0] and row[i + size] == self.EMPTY:
+                    # Hole too small. Close it
+                    x = 0
+                    while x < size:
+                        row[i + x] = self.EMPTY
+                        x += 1
+                    updated = True
+                i += size
+            elif row[i] == self.FILLED:
+                break
+            else:
+                i += 1
+        return row, updated
+
+    def last_gaps(self, row, hints):
+        row.reverse()
+        hints.reverse()
+        row, updated = self.first_gaps(row, hints)
+        row.reverse()
+        hints.reverse()
+        return row, updated
+
     def complete_max(self, row, hints):
         updated = False
         big = max(hints)
@@ -151,7 +217,7 @@ class Solver:
                 j = 0
                 while row[i + j] == self.FILLED:
                     j += 1
-                if j == big:
+                if j == big and (row[i + j] != self.EMPTY or row[i - 1] != self.EMPTY):
                     row[i + j] = self.EMPTY
                     row[i - 1] = self.EMPTY
                     updated = True
